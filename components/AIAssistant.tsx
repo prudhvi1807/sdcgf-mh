@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, X, Sparkles, Loader2, ExternalLink, ShieldAlert } from 'lucide-react';
+import { Send, Bot, X, Sparkles, Loader2, ExternalLink, ShieldAlert, ArrowRight } from 'lucide-react';
 import { getStartupAdvice, classifyUserIntent } from '../services/geminiService';
 import { SERVICES } from '../constants';
 
@@ -71,6 +70,14 @@ const AIAssistant: React.FC = () => {
 
   const getServiceData = (id: string) => SERVICES.find(s => s.id === id);
 
+  const handleServiceClick = (id: string) => {
+    setIsOpen(false);
+    const element = document.getElementById('services');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <button
@@ -90,7 +97,7 @@ const AIAssistant: React.FC = () => {
               <Bot size={22} />
             </div>
             <div>
-              <div className="font-bold flex items-center gap-2">
+              <div className="font-bold flex items-center gap-2 text-sm">
                 GETSTAT AI
                 <span className="bg-orange-500 text-[8px] px-1.5 py-0.5 rounded-full uppercase tracking-tighter">OFFICER</span>
               </div>
@@ -105,10 +112,10 @@ const AIAssistant: React.FC = () => {
           </button>
         </div>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-4 bg-gray-50/30">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-5 bg-gray-50/30">
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[90%] p-3.5 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
+              <div className={`max-w-[90%] p-4 rounded-2xl text-[13px] leading-relaxed shadow-sm ${
                 msg.role === 'user' 
                 ? 'bg-blue-600 text-white rounded-br-none' 
                 : 'bg-white border border-gray-100 text-gray-800 rounded-bl-none'
@@ -133,25 +140,30 @@ const AIAssistant: React.FC = () => {
           )}
 
           {recommendedService && !isTyping && (
-            <div className="mt-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Recommended Solution:</div>
+            <div className="mt-8 pt-4 border-t border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">
+                Recommended Solution:
+              </div>
               {(() => {
                 const s = getServiceData(recommendedService);
                 if (!s) return null;
                 return (
-                  <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 flex items-center justify-between group hover:border-orange-200 transition-all cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-orange-500 text-white rounded-lg flex items-center justify-center">
-                        <ExternalLink size={14} />
+                  <div 
+                    onClick={() => handleServiceClick(s.id)}
+                    className="bg-white border-2 border-orange-100 rounded-2xl p-4 flex items-center justify-between group hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/5 transition-all cursor-pointer ring-4 ring-orange-500/5"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-orange-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20">
+                        <ExternalLink size={20} />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-gray-900">{s.title}</div>
-                        <div className="text-[10px] text-orange-600 font-medium">Starting at {s.price}</div>
+                        <div className="text-sm font-black text-slate-900 uppercase tracking-tight">{s.title}</div>
+                        <div className="text-[11px] text-orange-600 font-bold uppercase tracking-widest mt-0.5">Starting at {s.price}</div>
                       </div>
                     </div>
-                    <button className="text-[10px] bg-white border border-orange-200 text-orange-600 px-3 py-1.5 rounded-lg font-bold hover:bg-orange-500 hover:text-white transition-all shadow-sm">
-                      Details
-                    </button>
+                    <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                      <ArrowRight size={16} />
+                    </div>
                   </div>
                 );
               })()}
@@ -171,6 +183,12 @@ const AIAssistant: React.FC = () => {
               onInput={(e: any) => {
                 e.target.style.height = 'auto';
                 e.target.style.height = e.target.scrollHeight + 'px';
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e as any);
+                }
               }}
             />
             <button 
