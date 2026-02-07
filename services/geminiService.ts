@@ -1,43 +1,14 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
 /**
- * Lazy factory for the Gemini client.
+ * Fetches startup and statutory advice from Gemini.
  * Strictly uses process.env.API_KEY as per system requirements.
  */
-let ai: GoogleGenAI | null = null;
-
-function getAI() {
-  if (ai) return ai;
-
-  const apiKey = process.env.API_KEY;
-
-  if (!apiKey) {
-    console.warn('Gemini API key is not available in environment variables.');
-    return null;
-  }
-
-  try {
-    ai = new GoogleGenAI({ apiKey });
-    return ai;
-  } catch (e) {
-    console.warn('Failed to initialize GoogleGenAI client:', e);
-    return null;
-  }
-}
-
-/**
- * Fetches startup and statutory advice from Gemini.
- */
 export async function getStartupAdvice(userQuery: string, history: { role: 'user' | 'assistant', content: string }[]) {
-  const client = getAI();
-
-  if (!client) {
-    return "I'm sorry, I'm currently in offline mode and unable to provide statutory advice. Please try again later or use the 'Talk to Expert' button for direct assistance.";
-  }
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
-    const response = await client.models.generateContent({
+    const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: [
         ...history.map(m => ({ 
@@ -51,18 +22,13 @@ export async function getStartupAdvice(userQuery: string, history: { role: 'user
         Your expertise covers: Startup India Services, GST Services, Statutory Filings, Payroll, KPI Tracking, and Audits.
         Professional, precise, and authoritative tone. Use Markdown formatting. 
         If a query is outside your scope, politely redirect them to statutory services.`,
-        thinkingConfig: { thinkingBudget: 0 }
       }
     });
 
-    if (!response.text) {
-      throw new Error("Empty response from advisor engine.");
-    }
-
-    return response.text;
+    return response.text || "I'm sorry, I couldn't process that request.";
   } catch (error) {
     console.error("Advice Generation Error:", error);
-    return "Our advisory systems are currently disconnected. For immediate assistance with Company Registration or GST filings, please contact our support team directly.";
+    return "Our advisory systems are currently disconnected. For immediate assistance, please contact our support team directly.";
   }
 }
 
@@ -70,18 +36,12 @@ export async function getStartupAdvice(userQuery: string, history: { role: 'user
  * Classifies user intent into service categories.
  */
 export async function classifyUserIntent(query: string) {
-  const defaultClassification = {
-    category: 'General',
-    relevantServiceId: null
-  };
-
-  const client = getAI();
-  if (!client) return defaultClassification;
-
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
-    const response = await client.models.generateContent({
+    const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Classify this statutory query into a service ID. Query: "${query}"`,
+      contents: [{ role: 'user', parts: [{ text: `Classify this statutory query into a service ID. Query: "${query}"` }] }],
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
@@ -102,12 +62,8 @@ export async function classifyUserIntent(query: string) {
       }
     });
     
-    const text = response.text;
-    if (!text) return defaultClassification;
-
-    return JSON.parse(text);
+    return JSON.parse(response.text || '{}');
   } catch (e) {
-    console.warn("Intent Classification Error - falling back to default:", e);
-    return defaultClassification;
+    return { category: 'General', relevantServiceId: null };
   }
 }

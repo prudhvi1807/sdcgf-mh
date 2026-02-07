@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Quote } from 'lucide-react';
 
@@ -52,7 +51,7 @@ export default function ClientsSection() {
             return (
               <div 
                 key={index} 
-                className={`group relative bg-white border border-slate-100 rounded-[2.5rem] transition-all duration-200 ease-out hover:-translate-y-[2px] shadow-sm overflow-hidden border-l-[3px] border-l-transparent hover:border-l-orange-500 hover:bg-blue-50/30 ${
+                className={`group relative bg-white border border-slate-100 rounded-[2.5rem] transition-all duration-200 ease-out hover:-translate-y-[2px] shadow-sm overflow-hidden border-l-[3px] border-l-transparent hover:border-l-orange-500 hover:bg-blue-600/[0.03] ${
                   isFeatured 
                     ? 'border-t-2 border-t-orange-500 p-10 md:p-14 lg:p-16' 
                     : 'p-10 md:p-12'
@@ -63,7 +62,7 @@ export default function ClientsSection() {
                   {/* Left: Quote Content */}
                   <div className="lg:col-span-8">
                     <Quote className={`text-orange-500 transition-opacity duration-200 opacity-20 group-hover:opacity-40 mb-4 ${isFeatured ? 'w-10 h-10' : 'w-7 h-7'}`} />
-                    <p className={`text-slate-800 italic leading-relaxed ${
+                    <p className={`text-slate-800 italic leading-relaxed transition-colors duration-200 ${
                       isFeatured ? 'text-xl md:text-2xl font-bold' : 'text-lg font-medium'
                     }`}>
                       "{t.quote}"
@@ -73,7 +72,7 @@ export default function ClientsSection() {
                   {/* Right: Client Details */}
                   <div className="lg:col-span-4 lg:border-l lg:border-slate-100 lg:pl-12 flex flex-col justify-center space-y-5">
                     <div>
-                      <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight transition-colors duration-200">
+                      <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight transition-colors duration-200 group-hover:text-slate-950">
                         {t.name}
                       </h4>
                       <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mt-1">
