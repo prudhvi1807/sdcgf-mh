@@ -1,7 +1,9 @@
+
 import React from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ServicesGrid from './components/ServicesGrid';
+import ClientsSection from './components/ClientsSection';
 import Stats from './components/Stats';
 import Footer from './components/Footer';
 import AIAssistant from './components/AIAssistant';
@@ -65,6 +67,8 @@ const App: React.FC = () => {
       </section>
 
       <ServicesGrid />
+
+      <ClientsSection />
 
       <section className="py-24 bg-[#003d99] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
