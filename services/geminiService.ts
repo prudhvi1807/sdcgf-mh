@@ -1,28 +1,24 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 
 /**
  * Lazy factory for the Gemini client.
- * Avoids top-level access to 'process' which might cause ReferenceErrors in browser runtimes.
+ * Strictly uses process.env.API_KEY as per system requirements.
  */
 let ai: GoogleGenAI | null = null;
 
 function getAI() {
   if (ai) return ai;
 
-  // The API key should be set in .env as VITE_GOOGLE_API_KEY (for local development)
-  // or will be provided by the environment as process.env.API_KEY.
-  // Note: VITE_GOOGLE_API_KEY should not be committed to version control.
-  const key =
-    (typeof process !== 'undefined' && (process as any).env?.API_KEY) ||
-    (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GOOGLE_API_KEY);
+  const apiKey = process.env.API_KEY;
 
-  if (!key) {
-    console.warn('No Gemini API key found. AI features are disabled. Please ensure VITE_GOOGLE_API_KEY is set in your .env file.');
+  if (!apiKey) {
+    console.warn('Gemini API key is not available in environment variables.');
     return null;
   }
 
   try {
-    ai = new GoogleGenAI({ apiKey: key });
+    ai = new GoogleGenAI({ apiKey });
     return ai;
   } catch (e) {
     console.warn('Failed to initialize GoogleGenAI client:', e);
@@ -32,7 +28,6 @@ function getAI() {
 
 /**
  * Fetches startup and statutory advice from Gemini.
- * Uses getAI() to guard against initialization failures and provides a friendly fallback.
  */
 export async function getStartupAdvice(userQuery: string, history: { role: 'user' | 'assistant', content: string }[]) {
   const client = getAI();
@@ -73,7 +68,6 @@ export async function getStartupAdvice(userQuery: string, history: { role: 'user
 
 /**
  * Classifies user intent into service categories.
- * Returns a default 'General' classification if the API client is unavailable or calls fail.
  */
 export async function classifyUserIntent(query: string) {
   const defaultClassification = {
